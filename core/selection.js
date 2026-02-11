@@ -15,6 +15,8 @@ class Range {
 }
 
 
+const isTextNode = (node) => node && node.nodeType === Node.TEXT_NODE;
+
 class Selection {
   constructor(scroll, emitter) {
     this.emitter = emitter;
@@ -131,7 +133,7 @@ class Selection {
     } else {
       let side = 'left';
       let rect;
-      if (node instanceof Text) {
+      if (isTextNode(node)) {
         if (offset < node.data.length) {
           range.setStart(node, offset);
           range.setEnd(node, offset + 1);
@@ -211,13 +213,13 @@ class Selection {
     };
     [range.start, range.end].forEach(function(position) {
       let node = position.node, offset = position.offset;
-      while (!(node instanceof Text) && node.childNodes.length > 0) {
+      while (!isTextNode(node) && node.childNodes.length > 0) {
         if (node.childNodes.length > offset) {
           node = node.childNodes[offset];
           offset = 0;
         } else if (node.childNodes.length === offset) {
           node = node.lastChild;
-          offset = node instanceof Text ? node.data.length : node.childNodes.length + 1;
+          offset = isTextNode(node) ? node.data.length : node.childNodes.length + 1;
         } else {
           break;
         }
